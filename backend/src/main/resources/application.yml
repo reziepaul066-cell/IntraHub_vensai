@@ -1,0 +1,39 @@
+spring:
+  datasource:
+    url: ${DB_URL:jdbc:h2:mem:intrahubdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE}
+    username: ${DB_USER:sa}
+    password: ${DB_PASSWORD:}
+    driver-class-name: ${DB_DRIVER:org.h2.Driver}
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: ${DB_DIALECT:org.hibernate.dialect.H2Dialect}
+        format_sql: true
+
+server:
+  port: ${SERVER_PORT:8080}
+  error:
+    include-message: always
+
+app:
+  jwt:
+    secret: ${JWT_SECRET:7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b}
+    expiration-ms: 86400000   # 24 hours
+
+  cors:
+    allowed-origins: ${CORS_ORIGINS:http://localhost:5173,http://localhost:3000}
+
+  mail:
+    from: noreply@intrahub.local
+
+logging:
+  level:
+    com.intrahub: DEBUG
+    org.springframework.security: WARN

@@ -1,0 +1,18 @@
+# Build Output & Binaries
+backend/target/
+*.class
+
+# Large Installers & Log files
+*.msi
+*.zip
+*.log
+
+# IDE & Tooling Metadata
+.idea/
+.vscode/
+*.iml
+.antigravityignore
+
+# OS generated files
+.DS_Store
+Thumbs.db

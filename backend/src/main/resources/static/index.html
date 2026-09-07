@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="IntraHub - Microsoft Teams Inspired Internal Employee Portal">
+  <title>IntraHub - Employee Portal</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+  <!-- Toast Container -->
+  <div id="toast-container"></div>
+
+  <!-- AUTH SECTION (When unauthenticated) -->
+  <div id="auth-section" class="auth-container" style="display: flex;">
+    <div class="teams-auth-card">
+      <div class="auth-header-logo">
+        <div class="teams-logo-badge">IH</div>
+        <div>
+          <h2 style="font-size: 18px; font-weight: 700; color: var(--text-primary);">IntraHub Workspace</h2>
+        </div>
+      </div>
+
+      <div style="display: flex; border-bottom: 1px solid var(--border-light); margin-bottom: 20px;">
+        <div class="subnav-link active" id="tab-login" onclick="switchAuthTab('login')" style="flex: 1; justify-content: center;">Sign In</div>
+        <div class="subnav-link" id="tab-register" onclick="switchAuthTab('register')" style="flex: 1; justify-content: center;">Register</div>
+      </div>
+
+      <!-- Login Form -->
+      <form id="login-form" onsubmit="handleLogin(event)">
+        <div class="form-field">
+          <label for="login-email">Work Email</label>
+          <input type="email" id="login-email" class="fluent-input" style="width: 100%; height: 36px;" required value="admin@intrahub.com">
+        </div>
+        <div class="form-field">
+          <label for="login-password">Password</label>
+          <input type="password" id="login-password" class="fluent-input" style="width: 100%; height: 36px;" required value="admin123">
+        </div>
+        <button type="submit" class="btn-fluent btn-fluent-primary" style="width: 100%; height: 36px; margin-top: 8px;">
+          <i class="fa-solid fa-lock"></i> Sign In to IntraHub
+        </button>
+      </form>
+
+      <!-- Register Form -->
+      <form id="register-form" onsubmit="handleRegister(event)" style="display: none;">
+        <div class="form-field" style="display: flex; gap: 10px;">
+          <div style="flex: 1;">
+            <label for="reg-first-name">First Name</label>
+            <input type="text" id="reg-first-name" class="fluent-input" style="width: 100%; height: 36px;" required>
+          </div>
+          <div style="flex: 1;">
+            <label for="reg-last-name">Last Name</label>
+            <input type="text" id="reg-last-name" class="fluent-input" style="width: 100%; height: 36px;" required>
+          </div>
+        </div>
+        <div class="form-field">
+          <label for="reg-email">Work Email</label>
+          <input type="email" id="reg-email" class="fluent-input" style="width: 100%; height: 36px;" required>
+        </div>
+        <div class="form-field">
+          <label for="reg-password">Password</label>
+          <input type="password" id="reg-password" class="fluent-input" style="width: 100%; height: 36px;" required minlength="6">
+        </div>
+        <div class="form-field" style="display: flex; gap: 10px;">
+          <div style="flex: 1;">
+            <label for="reg-emp-code">Employee ID / Code</label>
+            <input type="text" id="reg-emp-code" class="fluent-input" style="width: 100%; height: 36px;">
+          </div>
+          <div style="flex: 1;">
+            <label for="reg-designation">Designation</label>
+            <input type="text" id="reg-designation" class="fluent-input" style="width: 100%; height: 36px;">
+          </div>
+        </div>
+        <button type="submit" class="btn-fluent btn-fluent-primary" style="width: 100%; height: 36px; margin-top: 8px;">
+          <i class="fa-solid fa-user-plus"></i> Register User Account
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MAIN TEAMS APP PORTAL -->
+  <div id="app-root" style="display: none;">
+
+    <!-- Top Teams Search Header -->
+    <header class="top-teams-header">
+      <div class="teams-logo-area">
+        <div class="teams-logo-badge">IH</div>
+        <span>IntraHub</span>
+      </div>
+
+      <div class="teams-search-bar">
+        <input type="text" id="global-search" placeholder="Search employees, departments, or commands (/help)..." oninput="handleGlobalSearch(event)">
+        <i class="fa-solid fa-magnifying-glass teams-search-icon"></i>
+      </div>
+
+      <div class="top-user-area">
+        <div class="user-avatar-header" id="user-avatar" title="User Profile" onclick="navigateTo('profile')">
+          IH
+          <div class="user-status-dot"></div>
+        </div>
+        <button class="btn-fluent btn-fluent-secondary" style="height: 28px; padding: 0 8px; font-size: 11px; background: rgba(255,255,255,0.2); color: white; border: none;" onclick="handleLogout()">
+          <i class="fa-solid fa-right-from-bracket"></i> Sign Out
+        </button>
+      </div>
+    </header>
+
+    <div class="content-wrapper">
+      
+      <!-- Left App Rail (68px) -->
+      <nav class="app-rail">
+        <div class="rail-item active" id="rail-dashboard" onclick="navigateTo('dashboard')">
+          <i class="fa-solid fa-chart-line"></i>
+          <span>Dashboard</span>
+        </div>
+        <div class="rail-item" id="rail-employees" onclick="navigateTo('employees')">
+          <i class="fa-solid fa-address-book"></i>
+          <span>Directory</span>
+        </div>
+        <div class="rail-item" id="rail-departments" onclick="navigateTo('departments')">
+          <i class="fa-solid fa-sitemap"></i>
+          <span>Structure</span>
+        </div>
+        <div class="rail-item" id="rail-leaves" onclick="navigateTo('leaves')">
+          <i class="fa-solid fa-calendar-days"></i>
+          <span>Leaves</span>
+        </div>
+        <div class="rail-item" id="rail-profile" onclick="navigateTo('profile')">
+          <i class="fa-solid fa-user-gear"></i>
+          <span>Profile</span>
+        </div>
+      </nav>
+
+      <!-- Subnav Pane (240px) -->
+      <aside class="subnav-pane">
+        <div class="subnav-title" id="subnav-header-title">IntraHub</div>
+        <ul class="subnav-menu" id="subnav-menu-list">
+          <li class="subnav-link active" onclick="navigateTo('dashboard')"><i class="fa-solid fa-grid-2"></i> Overview</li>
+          <li class="subnav-link" onclick="navigateTo('employees')"><i class="fa-solid fa-users"></i> All Employees</li>
+          <li class="subnav-link" onclick="navigateTo('departments')"><i class="fa-solid fa-building"></i> Departments</li>
+          <li class="subnav-link" id="subnav-leaves" onclick="navigateTo('leaves')"><i class="fa-solid fa-calendar-days"></i> Leave Portal</li>
+          <li class="subnav-link" onclick="navigateTo('profile')"><i class="fa-solid fa-circle-user"></i> My Account</li>
+        </ul>
+
+        <div style="margin-top: auto; padding-top: 16px; border-top: 1px solid var(--border-light); font-size: 12px; color: var(--text-secondary);">
+          <div style="font-weight: 600;" id="user-display-name">User Name</div>
+          <div style="font-size: 11px; color: var(--text-muted);" id="user-display-email">user@intrahub.com</div>
+        </div>
+      </aside>
+
+      <!-- Main Workspace Canvas -->
+      <main class="view-canvas">
+
+        <!-- DASHBOARD VIEW -->
+        <section id="view-dashboard">
+          <div class="view-header">
+            <div class="view-title-group">
+              <h2>Organization Overview</h2>
+              <p>Workforce analytics and organizational health metrics</p>
+            </div>
+            <button class="btn-fluent btn-fluent-primary" onclick="openCreateDeptModal()"><i class="fa-solid fa-plus"></i> New Department</button>
+          </div>
+
+          <div class="fluent-grid-3">
+            <div class="fluent-card fluent-metric">
+              <div>
+                <span style="font-size: 13px; color: var(--text-secondary); font-weight: 600;">Total Active Workforce</span>
+                <div class="fluent-metric-num" id="metric-emp-count">0</div>
+              </div>
+              <div class="metric-icon-box">
+                <i class="fa-solid fa-users"></i>
+              </div>
+            </div>
+            <div class="fluent-card fluent-metric">
+              <div>
+                <span style="font-size: 13px; color: var(--text-secondary); font-weight: 600;">Active Departments</span>
+                <div class="fluent-metric-num" id="metric-dept-count">0</div>
+              </div>
+              <div class="metric-icon-box">
+                <i class="fa-solid fa-building"></i>
+              </div>
+            </div>
+            <div class="fluent-card fluent-metric">
+              <div>
+                <span style="font-size: 13px; color: var(--text-secondary); font-weight: 600;">Standard Leave Credit</span>
+                <div class="fluent-metric-num">15 Days</div>
+              </div>
+              <div class="metric-icon-box">
+                <i class="fa-solid fa-calendar-check"></i>
+              </div>
+            </div>
+          </div>
+
+          <div class="fluent-grid-2">
+            <div class="fluent-card">
+              <h3 style="font-size: 15px; font-weight: 700; margin-bottom: 12px; color: var(--text-primary);">Quick Management Shortcuts</h3>
+              <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <button class="btn-fluent btn-fluent-primary" onclick="navigateTo('employees')"><i class="fa-solid fa-list"></i> Employee Directory</button>
+                <button class="btn-fluent btn-fluent-secondary" onclick="openCreateDeptModal()"><i class="fa-solid fa-folder-plus"></i> Add Department</button>
+              </div>
+            </div>
+
+            <div class="fluent-card">
+              <h3 style="font-size: 15px; font-weight: 700; margin-bottom: 12px; color: var(--text-primary);">Service Status</h3>
+              <div style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: #107c41; font-weight: 600;">
+                <i class="fa-solid fa-circle-check"></i>
+                <span>Spring Boot Enterprise Backend Engine Running (Port 8080)</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- EMPLOYEES VIEW -->
+        <section id="view-employees" style="display: none;">
+          <div class="view-header">
+            <div class="view-title-group">
+              <h2>Employee Directory</h2>
+              <p>Search, filter, and update personnel profiles across departments</p>
+            </div>
+          </div>
+
+          <div class="fluent-table-wrapper">
+            <div class="fluent-filter-strip">
+              <input type="text" id="emp-search" class="fluent-input" style="width: 260px;" placeholder="Search employee name or code..." oninput="fetchEmployees()">
+              <select id="emp-dept-filter" class="fluent-select" onchange="fetchEmployees()">
+                <option value="">All Departments</option>
+              </select>
+              <select id="emp-active-filter" class="fluent-select" onchange="fetchEmployees()">
+                <option value="">All Statuses</option>
+                <option value="true">Active Only</option>
+                <option value="false">Inactive Only</option>
+              </select>
+            </div>
+
+            <table class="fluent-table">
+              <thead>
+                <tr>
+                  <th>Emp Code</th>
+                  <th>Employee Name</th>
+                  <th>Designation</th>
+                  <th>Department</th>
+                  <th>System Role</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="emp-table-body">
+                <!-- Dynamically Populated -->
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- DEPARTMENTS VIEW -->
+        <section id="view-departments" style="display: none;">
+          <div class="view-header">
+            <div class="view-title-group">
+              <h2>Departments</h2>
+              <p>Organizational departments and headcount hierarchy</p>
+            </div>
+            <button class="btn-fluent btn-fluent-primary" onclick="openCreateDeptModal()"><i class="fa-solid fa-plus"></i> New Department</button>
+          </div>
+
+          <div class="fluent-grid-3" id="dept-grid">
+            <!-- Dynamically Populated -->
+          </div>
+        </section>
+
+        <!-- MY PROFILE VIEW -->
+        <section id="view-profile" style="display: none;">
+          <div class="view-header">
+            <div class="view-title-group">
+              <h2>My Profile & Account</h2>
+              <p>View personal credentials, role permissions, and profile details</p>
+            </div>
+          </div>
+
+          <div class="fluent-card" style="max-width: 560px;">
+            <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid var(--border-light);">
+              <div class="user-avatar-header" id="prof-avatar" style="width: 52px; height: 52px; font-size: 20px;">IH</div>
+              <div>
+                <h3 id="prof-name" style="font-size: 16px; font-weight: 700;">Employee Name</h3>
+                <p id="prof-email" style="font-size: 13px; color: var(--text-secondary);">user@intrahub.com</p>
+                <span class="role-pill" id="prof-role" style="margin-top: 4px; display: inline-block;">ROLE_EMPLOYEE</span>
+              </div>
+            </div>
+
+            <form id="profile-form" onsubmit="handleProfileUpdate(event)">
+              <div class="form-field" style="display: flex; gap: 12px;">
+                <div style="flex: 1;">
+                  <label for="prof-fn">First Name</label>
+                  <input type="text" id="prof-fn" class="fluent-input" style="width: 100%;" required>
+                </div>
+                <div style="flex: 1;">
+                  <label for="prof-ln">Last Name</label>
+                  <input type="text" id="prof-ln" class="fluent-input" style="width: 100%;" required>
+                </div>
+              </div>
+              <div class="form-field">
+                <label for="prof-phone">Contact Phone</label>
+                <input type="text" id="prof-phone" class="fluent-input" style="width: 100%;">
+              </div>
+              <div class="form-field">
+                <label for="prof-desg">Job Designation</label>
+                <input type="text" id="prof-desg" class="fluent-input" style="width: 100%;">
+              </div>
+              <button type="submit" class="btn-fluent btn-fluent-primary"><i class="fa-solid fa-check"></i> Update Profile Settings</button>
+            </form>
+          </div>
+        </section>
+
+        <!-- LEAVES VIEW -->
+        <section id="view-leaves" style="display: none;">
+          <div class="view-header">
+            <div class="view-title-group">
+              <h2>Leave Management Portal</h2>
+              <p>Apply for leaves, view balances, and approve pending request queues</p>
+            </div>
+            <button class="btn-fluent btn-fluent-primary" onclick="openApplyLeaveModal()"><i class="fa-solid fa-calendar-plus"></i> Apply for Leave</button>
+          </div>
+
+          <div class="fluent-grid-3">
+            <div class="fluent-card fluent-metric">
+              <div>
+                <span style="font-size: 13px; color: var(--text-secondary); font-weight: 600;">Annual Leave Balance</span>
+                <div class="fluent-metric-num" id="leave-metric-annual">15 Days</div>
+              </div>
+              <div class="metric-icon-box">
+                <i class="fa-solid fa-umbrella-beach"></i>
+              </div>
+            </div>
+            <div class="fluent-card fluent-metric">
+              <div>
+                <span style="font-size: 13px; color: var(--text-secondary); font-weight: 600;">Sick Leave Balance</span>
+                <div class="fluent-metric-num" id="leave-metric-sick">10 Days</div>
+              </div>
+              <div class="metric-icon-box">
+                <i class="fa-solid fa-notes-medical"></i>
+              </div>
+            </div>
+            <div class="fluent-card fluent-metric">
+              <div>
+                <span style="font-size: 13px; color: var(--text-secondary); font-weight: 600;">Pending Approvals Queue</span>
+                <div class="fluent-metric-num" id="leave-metric-pending">0</div>
+              </div>
+              <div class="metric-icon-box">
+                <i class="fa-solid fa-clock-rotate-left"></i>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pending Approvals for Managers/HR -->
+          <div class="fluent-table-wrapper" style="margin-bottom: 24px;">
+            <div class="fluent-filter-strip">
+              <h3 style="font-size: 15px; font-weight: 700; color: var(--theme-dark);"><i class="fa-solid fa-inbox"></i> Pending Manager Approvals</h3>
+            </div>
+            <table class="fluent-table">
+              <thead>
+                <tr>
+                  <th>Employee</th>
+                  <th>Dept</th>
+                  <th>Type</th>
+                  <th>Dates</th>
+                  <th>Days</th>
+                  <th>Reason</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="leave-pending-table-body">
+                <!-- Dynamically Populated -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- My Leave Applications History -->
+          <div class="fluent-table-wrapper">
+            <div class="fluent-filter-strip">
+              <h3 style="font-size: 15px; font-weight: 700; color: var(--text-primary);"><i class="fa-solid fa-history"></i> My Leave History</h3>
+            </div>
+            <table class="fluent-table">
+              <thead>
+                <tr>
+                  <th>Leave Type</th>
+                  <th>Start Date</th>
+                  <th>End Date</th>
+                  <th>Total Days</th>
+                  <th>Reason</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="leave-my-table-body">
+                <!-- Dynamically Populated -->
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- APPLY LEAVE MODAL -->
+  <div class="modal-overlay" id="leave-modal">
+    <div class="modal-box">
+      <div class="modal-head">
+        <h3>Apply for Leave</h3>
+        <button class="close-x" onclick="closeModal('leave-modal')">&times;</button>
+      </div>
+      <form onsubmit="handleApplyLeave(event)">
+        <div class="form-field">
+          <label for="leave-type">Leave Category</label>
+          <select id="leave-type" class="fluent-select" style="width: 100%;" required>
+            <option value="ANNUAL">Annual Leave</option>
+            <option value="SICK">Sick Leave</option>
+            <option value="CASUAL">Casual Leave</option>
+            <option value="UNPAID">Unpaid Leave</option>
+          </select>
+        </div>
+        <div class="form-field" style="display: flex; gap: 10px;">
+          <div style="flex: 1;">
+            <label for="leave-start-date">Start Date</label>
+            <input type="date" id="leave-start-date" class="fluent-input" style="width: 100%;" required>
+          </div>
+          <div style="flex: 1;">
+            <label for="leave-end-date">End Date</label>
+            <input type="date" id="leave-end-date" class="fluent-input" style="width: 100%;" required>
+          </div>
+        </div>
+        <div class="form-field">
+          <label for="leave-reason">Reason for Absence</label>
+          <input type="text" id="leave-reason" class="fluent-input" style="width: 100%;" placeholder="e.g. Family vacation / medical appointment">
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px;">
+          <button type="button" class="btn-fluent btn-fluent-secondary" onclick="closeModal('leave-modal')">Cancel</button>
+          <button type="submit" class="btn-fluent btn-fluent-primary">Submit Application</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- CREATE / EDIT DEPARTMENT MODAL -->
+  <div class="modal-overlay" id="dept-modal">
+    <div class="modal-box">
+      <div class="modal-head">
+        <h3 id="dept-modal-title">Create Department</h3>
+        <button class="close-x" onclick="closeModal('dept-modal')">&times;</button>
+      </div>
+      <form onsubmit="handleSaveDepartment(event)">
+        <input type="hidden" id="dept-id">
+        <div class="form-field">
+          <label for="dept-name">Department Title</label>
+          <input type="text" id="dept-name" class="fluent-input" style="width: 100%;" required placeholder="e.g., Engineering">
+        </div>
+        <div class="form-field">
+          <label for="dept-head">Department Head</label>
+          <input type="text" id="dept-head" class="fluent-input" style="width: 100%;" placeholder="e.g., Jane Doe">
+        </div>
+        <div class="form-field">
+          <label for="dept-desc">Description</label>
+          <input type="text" id="dept-desc" class="fluent-input" style="width: 100%;" placeholder="Department responsibilities">
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px;">
+          <button type="button" class="btn-fluent btn-fluent-secondary" onclick="closeModal('dept-modal')">Cancel</button>
+          <button type="submit" class="btn-fluent btn-fluent-primary">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- EDIT EMPLOYEE MODAL -->
+  <div class="modal-overlay" id="emp-modal">
+    <div class="modal-box">
+      <div class="modal-head">
+        <h3>Edit Employee Record</h3>
+        <button class="close-x" onclick="closeModal('emp-modal')">&times;</button>
+      </div>
+      <form onsubmit="handleSaveEmployee(event)">
+        <input type="hidden" id="emp-edit-id">
+        <div class="form-field" style="display: flex; gap: 10px;">
+          <div style="flex: 1;">
+            <label for="emp-edit-fn">First Name</label>
+            <input type="text" id="emp-edit-fn" class="fluent-input" style="width: 100%;" required>
+          </div>
+          <div style="flex: 1;">
+            <label for="emp-edit-ln">Last Name</label>
+            <input type="text" id="emp-edit-ln" class="fluent-input" style="width: 100%;" required>
+          </div>
+        </div>
+        <div class="form-field">
+          <label for="emp-edit-desg">Designation</label>
+          <input type="text" id="emp-edit-desg" class="fluent-input" style="width: 100%;">
+        </div>
+        <div class="form-field">
+          <label for="emp-edit-dept">Assigned Department</label>
+          <select id="emp-edit-dept" class="fluent-select" style="width: 100%;">
+            <option value="">Unassigned</option>
+          </select>
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px;">
+          <button type="button" class="btn-fluent btn-fluent-secondary" onclick="closeModal('emp-modal')">Cancel</button>
+          <button type="submit" class="btn-fluent btn-fluent-primary">Update Profile</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="/js/app.js"></script>
+</body>
+</html>
