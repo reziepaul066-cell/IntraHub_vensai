@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  database:
+    image: postgres:16-alpine
+    container_name: intrahub-database
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: intrahubdb
+      POSTGRES_USER: intrahub_user
+      POSTGRES_PASSWORD: intrahub_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - intrahub-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U intrahub_user -d intrahubdb"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: intrahub-backend
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      DB_URL: jdbc:postgresql://database:5432/intrahubdb
+      DB_USER: intrahub_user
+      DB_PASSWORD: intrahub_password
+      DB_DRIVER: org.postgresql.Driver
+      DB_DIALECT: org.hibernate.dialect.PostgreSQLDialect
+      CORS_ORIGINS: http://localhost,http://localhost:80,http://localhost:5173
+    depends_on:
+      database:
+        condition: service_healthy
+    networks:
+      - intrahub-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: intrahub-frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - intrahub-network
+
+networks:
+  intrahub-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+    driver: local
